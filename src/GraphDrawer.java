@@ -17,19 +17,21 @@ class GraphDrawer {
             v = v.m_parent;
         }
         //plot
-        plot_preorder(v);
+        plot_preorder(v, 0);
+        System.out.println();
     }
 
-    void plot_preorder(Vertex v) {
-        System.out.print(v.m_label + " ");
-        if (v.m_left != null) {
-            System.out.print("Left son:");
-            plot_preorder(v.m_left);
+    void plot_preorder(Vertex v, int shift) {
+        if(v == null) {
+            System.out.print("null");
+            return;
         }
-        if (v.m_right != null) {
-            System.out.print("Right son:");
-            plot_preorder(v.m_right);
-        }
-        System.out.println(".");
+        int newShift = shift + 2 + v.m_label.length();
+
+        System.out.format("(%s ", v.m_label);
+        plot_preorder(v.m_left, newShift);
+        System.out.format("\n%" + newShift + "s", " ");
+        plot_preorder(v.m_right, newShift);
+        System.out.print(")");
     }
 }
