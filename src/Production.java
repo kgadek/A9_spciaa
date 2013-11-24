@@ -10,6 +10,7 @@ abstract class Production extends Thread {
     Production(Vertex Vert, Counter Count) {
         m_vertex = Vert;
         m_counter = Count;
+        m_counter.inc();
         m_drawer = new GraphDrawer();
     }
 
@@ -18,10 +19,7 @@ abstract class Production extends Thread {
 
     //run the thread
     public void run() {
-        m_counter.inc();
-        //apply the production
         m_vertex = apply(m_vertex);
-        //plot the graph
         m_drawer.draw(m_vertex);
         m_counter.dec();
     }
