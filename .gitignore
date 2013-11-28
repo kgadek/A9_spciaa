@@ -21,3 +21,5 @@
 # Maven
 log/
 target/
+__pycache__
+*.pyc
