@@ -80,11 +80,32 @@ class Matrix:
             res[rowId] = [self[rowA][c] for c in cols]
         return res
 
+    def gaussStep(self, baseRowId):
+        if self.m[baseRowId][baseRowId] == 0:
+            raise Exception()
+        self.m[baseRowId] = [x / self.m[baseRowId][baseRowId] for x in self.m[baseRowId]]
+        for rowId, _row in enumerate(self.m[baseRowId+1:], baseRowId+1):
+            if self.m[rowId][baseRowId] != 0:
+                self.m[rowId] = [x - self.m[rowId][baseRowId] * y for x, y in zip(self.m[rowId], self.m[baseRowId])]
+
+        # for rowId, _i in [(0,0)]:  # for full gauss: ... in enumerate(self.m):
+        #     if self.m[rowId][rowId] != 0:
+        #         self.m[rowId] = [x / self.m[rowId][rowId] for x in self.m[rowId]]
+        #     for nextrowId, _j in enumerate(self.m[rowId+1:], rowId+1):
+        #         self.m[nextrowId] = [x - self.m[nextrowId][nextrowId-1] * y for x,y in zip(self.m[nextrowId],self.m[rowId])]
+        #         self.m[nextrowId][nextrowId-1] = 0.0
+
     @classmethod
     def prodA1(cls, a, b):
-        res = cls.prodA2(a, b)
+        coldescrs = [a.coldescrs[0], a.coldescrs[1] + b.coldescrs[0], b.coldescrs[1], ""]
+        rowdescrs = [a.rowdescrs[0], a.rowdescrs[1] + b.rowdescrs[0], b.rowdescrs[1], ""]
+        res = cls(3, 4, coldescrs, rowdescrs)
+        res[0] = a[0] + [a[0][2]]
+        res[1] = [a[1][0], a[1][1]+b[0][0], b[0][1], a[1][2]+b[0][2]]
+        res[2] = [0.0, b[1][0], b[1][1], b[1][2]]
         res.swapcol(0, 1)
         res.swaprow(0, 1)
+        res.gaussStep(0)
         return res
 
     @classmethod
@@ -95,16 +116,31 @@ class Matrix:
         res[0] = a[0] + [a[0][2]]
         res[1] = [a[1][0], a[1][1]+b[0][0], b[0][1], a[1][2]+b[0][2]]
         res[2] = [0.0, b[1][0], b[1][1], b[1][2]]
+        res.gaussStep(0)
+        # res.gaussStep(1)
         return res
 
 
+globalsolution = [None, None, None, None, None]
 if __name__ == "__main__":
-    a1 = Matrix(2, 3, [Un(0),    Un(1, 1)], [Un(0),    Un(1, 1), ""], [1, 0, 0, 1, -1, 0])
-    a2 = Matrix(2, 3, [Un(1, 2), Un(2, 1)], [Un(1, 2), Un(2, 1), ""],       [-1, 1, 0, 1, -1, 0])
-    print(a1)
-    print(a2)
+    a1 = Matrix(2, 3, [Un(0),    Un(1, 1)], [Un(0),    Un(1, 1), ""], [  1,  0,  0,  1, -1,  0 ])
+    a2 = Matrix(2, 3, [Un(1, 2), Un(2, 1)], [Un(1, 2), Un(2, 1), ""], [ -1,  1,  0,  1, -1,  0 ])
+    
+    a3 = Matrix(2, 3, [Un(2, 2), Un(3, 1)], [Un(2, 2), Un(3, 1), ""], [ -1,  1,  0,  1, -1,  0 ])
+    a4 = Matrix(2, 3, [Un(3, 2), Un(4)], [Un(3, 2), Un(4), ""],       [ -1,  1,  0,  0,  1, 20 ])
 
     b1 = Matrix.prodA1(a1,a2)
-    print(b1)
-    b1 = b1.cutpart([1,2], [1,2,3])
-    print(b1)
+    # print(b1)
+    b2 = Matrix.prodA1(a3,a4)
+    # print(b2)
+
+    print("b1\n" + str(b1))
+    print("b2\n" + str(b2))
+
+    c1 = Matrix.prodA2(b1.cutpart([1,2], [1,2,3]), b2.cutpart([1,2], [1,2,3]))
+    print("c1\n" + str(c1))
+
+    for rowId, _i in reversed(list(enumerate(c1.m))):
+        globalsolution[c1.rowdescrs[rowId].number] = c1[rowId][-1] + sum(x*globalsolution[y.number] for x,y in zip(c1[rowId][rowId+1:-1], c1.coldescrs[rowId+1:-1]))
+        print(c1.rowdescrs[rowId], c1[rowId][rowId+1:-1], c1.coldescrs[rowId+1:-1], globalsolution[c1.rowdescrs[rowId].number])
+    print(globalsolution)
