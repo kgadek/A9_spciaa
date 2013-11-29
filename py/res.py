@@ -113,10 +113,18 @@ class Matrix:
         # res.gaussStep(1)
         return res
 
+    def gauss(self):
+        for rowId, _row in enumerate(self.m):
+            self.gaussStep(rowId)
+
     def solv(self, globalsolution):
+        self.gauss()
         for rowId, _i in reversed(list(enumerate(self.m))):
-            globalsolution[self.rowdescrs[rowId].number] = self[rowId][-1] + sum(x*globalsolution[y.number]
+            # for x,y in zip(self[rowId][rowId+1:-1], self.coldescrs[rowId+1:-1]):
+            #     print("x * u_{} = {} * {}".format(y.number, x, globalsolution[y.number]))
+            globalsolution[self.rowdescrs[rowId].number] = self[rowId][-1] - sum(x*globalsolution[y.number]
                            for x,y in zip(self[rowId][rowId+1:-1], self.coldescrs[rowId+1:-1]))
+            # print(" --> u_{} = {} = {} - ...".format(self.rowdescrs[rowId].number, globalsolution[self.rowdescrs[rowId].number], self[rowId][-1]))
 
 
 
@@ -140,19 +148,16 @@ if __name__ == "__main__":
     c1 = Matrix.prodA2(b1.cutpart([1,2], [1,2,3]), b2.cutpart([1,2], [1,2,3]))
     print("c1\n" + str(c1))
     c1.solv(globalsolution)
+    
 
     b1[2] = [0, 0, 1, globalsolution[2]]
     b1.coldescrs[2] = Un(2)
     b1.rowdescrs[2] = Un(2)
-    b1[0] = [1, -0.5, 0.5, 0]
-    # print("b1\n" + str(b1))
     b1.solv(globalsolution)
 
     b2[1] = [0, 1, 0, globalsolution[2]]
     b2.coldescrs[1] = Un(2)
     b2.rowdescrs[1] = Un(2)
-    b2[0] = [1, 0.5, 0.5, 0]
-    # print("b2\n" + str(b2))
     b2.solv(globalsolution)
     
     print(globalsolution)
