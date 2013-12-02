@@ -93,7 +93,7 @@ class Matrix:
         coldescrs = [a.coldescrs[0], a.coldescrs[1] + b.coldescrs[0], b.coldescrs[1], ""]
         rowdescrs = [a.rowdescrs[0], a.rowdescrs[1] + b.rowdescrs[0], b.rowdescrs[1], ""]
         res = cls(3, 4, coldescrs, rowdescrs)
-        res[0] = a[0] + [a[0][2]]
+        res[0] = a[0][:2] + [0.0, a[0][2]]
         res[1] = [a[1][0], a[1][1]+b[0][0], b[0][1], a[1][2]+b[0][2]]
         res[2] = [0.0, b[1][0], b[1][1], b[1][2]]
         res.swapcol(0, 1)
@@ -106,7 +106,7 @@ class Matrix:
         coldescrs = [a.coldescrs[0], a.coldescrs[1] + b.coldescrs[0], b.coldescrs[1], ""]
         rowdescrs = [a.rowdescrs[0], a.rowdescrs[1] + b.rowdescrs[0], b.rowdescrs[1], ""]
         res = cls(3, 4, coldescrs, rowdescrs)
-        res[0] = a[0] + [a[0][2]]
+        res[0] = a[0][:2] + [0.0, a[0][2]]
         res[1] = [a[1][0], a[1][1]+b[0][0], b[0][1], a[1][2]+b[0][2]]
         res[2] = [0.0, b[1][0], b[1][1], b[1][2]]
         res.gaussStep(0)
@@ -129,14 +129,14 @@ class Matrix:
 
 
 if __name__ == "__main__":
-    a1 = Matrix(2, 3, [Un(0),    Un(1, 1)], [Un(0),    Un(1, 1), ""], [  1,  0,  0,  1, -1,  0 ])
+    a1 = Matrix(2, 3, [Un(0),    Un(1, 1)], [Un(0),    Un(1, 1), ""], [  1,  0,  0,  1, -1, 1./32 ])
     print("a1\n" + str(a1))
-    a2 = Matrix(2, 3, [Un(1, 2), Un(2, 1)], [Un(1, 2), Un(2, 1), ""], [ -1,  1,  0,  1, -1,  0 ])
+    a2 = Matrix(2, 3, [Un(1, 2), Un(2, 1)], [Un(1, 2), Un(2, 1), ""], [ -1,  1,  1./32,  1, -1, 1./32 ])
     print("a2\n" + str(a2))
     
-    a3 = Matrix(2, 3, [Un(2, 2), Un(3, 1)], [Un(2, 2), Un(3, 1), ""], [ -1,  1,  0,  1, -1,  0 ])
+    a3 = Matrix(2, 3, [Un(2, 2), Un(3, 1)], [Un(2, 2), Un(3, 1), ""], [ -1,  1,  1./32,  1, -1, 1./32 ])
     print("a3\n" + str(a3))
-    a4 = Matrix(2, 3, [Un(3, 2), Un(4)], [Un(3, 2), Un(4), ""],       [ -1,  1,  0,  0,  1, 20 ])
+    a4 = Matrix(2, 3, [Un(3, 2), Un(4)], [Un(3, 2), Un(4), ""],       [ -1,  1,  1./32,  0,  1, 1 ])
     print("a4\n" + str(a4))
 
     b1 = Matrix.prodA1(a1,a2)
@@ -161,6 +161,7 @@ if __name__ == "__main__":
     b2.solv(globalsolution)
     
     print(globalsolution)
+    # 0, 0.97, 0.22, 0.375, 0.555, 0.763, 1
     with open('plot.dat', 'w') as fh:
         for i, v in enumerate(globalsolution):
             fh.write("{}    {}\n".format(1./4*i, v))
